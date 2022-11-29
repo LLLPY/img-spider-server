@@ -17,7 +17,7 @@ class KeywordAdmin(admin.ModelAdmin):
 
     list_display = [
         'id',
-        'keyword',
+        'name',
         'create_time',
         'img_count',
         'img_crawled_count',

@@ -30,6 +30,7 @@ ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
     'simpleui',
+    'rest_framework',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -115,6 +116,10 @@ USE_TZ = False
 
 STATIC_URL = 'static/'
 
+#静态文件的目录
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static')
+]
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
@@ -176,4 +181,10 @@ CACHES = {
         'LOCATION': 'redis://127.0.0.1:6379/0',
 
     }
+}
+
+
+#restframework
+REST_FRAMEWORK = {
+    'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema',
 }

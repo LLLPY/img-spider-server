@@ -4,10 +4,10 @@ import datetime
 
 class Keyword(models.Model):
     # 关键字
-    keyword = models.CharField(max_length=50, unique=True, db_index=True, db_column='关键字', verbose_name='关键字')
+    name = models.CharField(default='',max_length=50, unique=True, db_index=True, db_column='关键字', verbose_name='关键字',help_text='关键字')
 
     # 创建时间
-    create_time = models.DateTimeField(default=datetime.datetime.now, db_column='创建时间', verbose_name='创建时间')
+    create_time = models.DateTimeField(default=datetime.datetime.now, db_column='创建时间', verbose_name='创建时间',help_text='创建时间')
 
     class Meta:
         db_table = '关键字'
@@ -16,7 +16,7 @@ class Keyword(models.Model):
 
     @classmethod
     def get_keyword_list(cls):
-        return [k[0] for k in cls.objects.values_list('keyword')]
+        return [k[0] for k in cls.objects.values_list('name')]
 
     def __str__(self) -> str:
         return self.keyword
@@ -55,22 +55,22 @@ class Page(models.Model):
     )
 
     # 所属分类，根据哪个关键字爬取的就是哪个分类
-    keyword = models.ForeignKey(Keyword, on_delete=models.CASCADE, db_column='关键字', verbose_name='关键字')
+    keyword = models.ForeignKey(Keyword, on_delete=models.CASCADE, db_column='关键字', verbose_name='关键字',help_text='关键字')
 
-    url = models.URLField(db_column='页面地址', verbose_name='页面地址')
+    url = models.URLField(db_column='页面地址', verbose_name='页面地址',help_text='页面地址')
     # 唯一标识
-    uid = models.CharField(max_length=100, db_index=True, db_column='唯一标识', verbose_name='唯一标识')
+    uid = models.CharField(max_length=100, db_index=True, db_column='唯一标识', verbose_name='唯一标识',help_text='唯一标识')
     # 爬取状态 
-    status = models.IntegerField(default=STATUS_UNCRAWL, choices=STATUS_MAPPING, db_column='状态', verbose_name='状态')
+    status = models.IntegerField(default=STATUS_UNCRAWL, choices=STATUS_MAPPING, db_column='状态', verbose_name='状态',help_text='状态')
     # 爬取的时间
-    crawl_time = models.DateTimeField(db_column='爬取时间', verbose_name='爬取时间')
+    crawl_time = models.DateTimeField(db_column='爬取时间', verbose_name='爬取时间',help_text='爬取时间')
 
-    img_count = models.IntegerField(default=0, db_column='页面上的图片', verbose_name='页面上的图片')
+    img_count = models.IntegerField(default=0, db_column='页面上的图片', verbose_name='页面上的图片',help_text='页面上的图片')
 
-    source = models.CharField(max_length=20, db_column='爬取源', verbose_name='爬取源')
+    source = models.CharField(max_length=20, db_column='爬取源', verbose_name='爬取源',help_text='爬取源')
 
     # 爬取深度，最大爬取深度为3
-    deep = models.IntegerField(default=1, choices=DEEP_MAPPING, db_column='爬取深度', verbose_name='爬取深度')
+    deep = models.IntegerField(default=1, choices=DEEP_MAPPING, db_column='爬取深度', verbose_name='爬取深度',help_text='爬取深度')
 
     class Meta:
         db_table = '页面'

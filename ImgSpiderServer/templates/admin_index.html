@@ -1,12 +1,75 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>首页</title>
+    <title>Img-Spider管理后台</title>
+    <style>
+
+       
+      body{
+        position: relative;
+      }
+
+        video{
+            width: 100%;
+            height: 97%;
+           z-index: 0;
+           object-fit:fill;
+           position: absolute;
+
+        }
+        #logo {
+            width: 100%;
+            font-size: 7.5rem;
+            margin: auto auto;
+            text-align: center;
+            margin-top: 10%;
+            text-shadow:  5px 0px 1px rgb(12 6 6 / 80%), 1px 0 1px rgb(0 0 0 / 80%);
+            z-index: 100;
+            position: absolute;
+            color: #e9fcfe;
+            cursor: pointer;
+            
+        }
+
+    </style>
+
+    <script>
+        
+      window.onload=function(){
+
+        var body=document.getElementsByTagName('body')[0];
+
+function get_width_and_height(){
+    let width=window.innerWidth || document.documentElement.clientWidth;
+    let height=window.innerHeight || document.documentElement.clientHeight;
+    return [width,height]
+}
+
+function set_body_size(){
+    let width_height=get_width_and_height();
+    body.style.width=width_height[0]+'px';
+    body.style.height=width_height[1]+'px';
+}
+
+set_body_size();
+window.onresize=function(){
+    set_body_size()
+}
+
+}
+</script>
+
+
 </head>
 <body>
 
-Img-Spider
+    <video src="{% static 'video/bg.mp4' %}" autoplay="True" loop="True" muted="0"></video>
+
+    <div id="logo">Img-Spider&nbsp;管&nbsp;理&nbsp;后&nbsp;台</div>
+
+
 
 </body>
 </html>

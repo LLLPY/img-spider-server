@@ -16,6 +16,7 @@ Including another URLconf
 from django.contrib import admin
 from django.shortcuts import render
 from django.urls import path, include
+from rest_framework.documentation import include_docs_urls
 
 admin.site.site_header = 'Img-Spider管理后台'
 admin.site.site_title = 'Img-Spider管理后台'
@@ -25,5 +26,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('img_server/', include(('img_server.urls', 'img_server'), namespace='img_server')),
     path('page_server/', include(('page_server.urls', 'page_server'), namespace='page_server')),
+    path('api/docs/', include_docs_urls(title='Img-Spider api docs')),
     path('', lambda a: render(a, 'admin_index.html'), name='admin_index'),
 ]
