@@ -19,7 +19,7 @@ def upload_page(request):
         for item in img_list:
             k = item['uid']
             page_str = cache.get(k)
-            if page_str == None:
+            if not page_str:
                 new_page_obj = Page()
                 for attr in item:
                     if attr == 'keyword':

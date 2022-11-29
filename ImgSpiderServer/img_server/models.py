@@ -76,6 +76,6 @@ class Img(models.Model):
         tmp_dict['thumb_url'] = self.thumb_url
         tmp_dict['uid'] = self.uid
         tmp_dict['status'] = self.status
-        tmp_dict['page_url'] = self.page_url
+        tmp_dict['page_url'] = self.page.url
         tmp_dict['crawl_time'] = self.crawl_time
         tmp_dict['desc'] = self.desc
