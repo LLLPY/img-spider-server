@@ -28,5 +28,7 @@ def upload_page(request):
                         setattr(new_page_obj, attr, item[attr])
                 new_page_obj.save()
                 cache.set(k, item['url'], 24 * 60 * 60)
+            else:
+                print('已经存在', page_str)
 
         return JsonResponse({'status': 'success', 'msg': '图片上传成功!'})
