@@ -8,6 +8,15 @@ import json
 # Create your views here.
 from page_server.models import Keyword, Page
 
+RESPONSE_CODE_SUCCESS='200'
+RESPONSE_CODE_FAIL='400'
+
+DEFAULT_RETURN_CONTENT={
+    'code':RESPONSE_CODE_SUCCESS,
+    'msg':'响应成功!',
+    'data':None
+}
+
 
 class ImgView(View):
 
@@ -45,5 +54,18 @@ def upload_img(request):
                         setattr(new_img_obj, attr, item[attr])
                 new_img_obj.save()
                 cache.set(k, item['url'], 24 * 60 * 60)
-
+        
         return JsonResponse({'status': 'success', 'msg': '图片上传成功!'})
+
+#检测重复的uid
+def check_dup_uid(request):
+    
+    if request.method == 'POST':
+        uid_list=json.loads(request.POST.get('uid_list','[]'))
+        res_uid_list=[]
+        for uid in uid_list:
+            exist=cache.get(uid)
+            if not exist:
+                res_uid_list.append(uid)
+        
+            
