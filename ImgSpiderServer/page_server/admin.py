@@ -14,7 +14,8 @@ class KeywordAdmin(admin.ModelAdmin):
     save_on_bottom = True
     list_select_related = True
     save_as = True
-
+    search_fields = ['name']
+    list_filter = ['create_time']
     list_display = [
         'id',
         'name',
@@ -98,7 +99,20 @@ class PageAdmin(admin.ModelAdmin):
     save_on_bottom = True
     list_select_related = True
     save_as = True
+    search_fields = [
+        'keyword__name',
+        'uid',
 
+    ]
+    list_filter = [
+        'keyword__name',
+        'uid',
+        'status',
+        'source',
+        'deep',
+        'crawl_time',
+
+    ]
     list_display = [
         'id',
         'keyword',

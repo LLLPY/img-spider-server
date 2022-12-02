@@ -1,10 +1,13 @@
 from django.core.cache import cache
 from django.shortcuts import render
+
+from img_server.views import catch_error
 from page_server.models import Keyword, Page
 from django.http import JsonResponse
 import json
 
 
+@catch_error
 def keyword_list(request):
     if request.method == 'GET':
         keyword_list = Keyword.get_keyword_list()
@@ -13,6 +16,7 @@ def keyword_list(request):
 
 
 # 上传页面
+@catch_error
 def upload_page(request):
     if request.method == 'POST':
         img_list = json.loads(request.POST.get('page_list', '[]'))
@@ -29,6 +33,44 @@ def upload_page(request):
                 new_page_obj.save()
                 cache.set(k, item['url'], 24 * 60 * 60)
             else:
-                print('已经存在', page_str)
+                print('页面已经存在...', page_str)
+        response_data = {
+            'code': '200',
+            'msg': '页面上传成功!',
+            'data': None
+        }
+        return JsonResponse(response_data)
 
-        return JsonResponse({'status': 'success', 'msg': '图片上传成功!'})
+
+# 获取待消费的page
+@catch_error
+def get_ready_page(request):
+    if request.method == 'POST':
+        keyword = request.POST.get('keyword', None)
+        page_list = Page.get_ready_page_list(keyword)
+        response_data = {
+            'code': '200',
+            'msg': '响应成功!',
+            'data': page_list
+        }
+        return JsonResponse(response_data)
+
+
+@catch_error
+def update_page(request):
+    if request.method == 'POST':
+        page_dict = json.loads(request.POST.get('page'))
+        uid=page_dict.get('uid','')
+        page_obj=Page.objects.filter(uid=uid).first()
+        if page_obj:
+            page_obj.status=page_dict['status']
+            page_obj.deep=page_dict['deep']
+            page_obj.img_count=page_dict['img_count']
+        page_obj.save()
+        print(666666)
+        response_data = {
+            'code': '200',
+            'msg': '响应成功!',
+            'data': ''
+        }
+        return JsonResponse(response_data)

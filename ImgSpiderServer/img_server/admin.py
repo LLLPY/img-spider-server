@@ -13,7 +13,16 @@ class ImgAdmin(admin.ModelAdmin):
     save_on_bottom = True
     list_select_related = True
     save_as = True
-    search_fields = ['keyword']
+    search_fields = ['keyword__name','uid']
+    list_filter = [
+        'keyword__name',
+        'status',
+        'source',
+        'qualify',
+        'uid',
+        'crawl_time',
+
+    ]
     list_display = [
         'id',
         'keyword',

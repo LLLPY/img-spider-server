@@ -12,5 +12,7 @@ urlpatterns = [
     re_path(r'api/',include((router.urls,'api'),'api')),
     re_path(r'keyword_list/', keyword_list, name='keyword_list'),
     re_path(r'upload_page/', upload_page, name='upload_page'),
+    re_path(r'get_ready_page/', get_ready_page, name='get_ready_page'),
+    re_path(r'update_page/', update_page, name='update_page'),
 
 ]

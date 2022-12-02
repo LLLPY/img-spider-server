@@ -1,6 +1,8 @@
 from django.db import models
 import datetime
 
+from django.db.models import Q
+
 
 class Keyword(models.Model):
     # 关键字
@@ -85,4 +87,23 @@ class Page(models.Model):
     def __str__(self) -> str:
         return self.url
 
+    @classmethod
+    def get_ready_page_list(cls, keyword=None):
+        objs = cls.objects.filter(Q(status=cls.STATUS_UNCRAWL) & Q(deep__lte=3))
+        if keyword:
+            objs = objs.filter(keyword__name=keyword)
+        page_list = [obj.to_dict() for obj in objs[:50]]
+        return page_list
 
+    def to_dict(self):
+        dict_con = {
+            'url': self.url,
+            'keyword': self.keyword.name,
+            'uid': self.uid,
+            'status': self.status,
+            'source': self.source,
+            'img_count': self.img_count,
+            'crawl_time': self.crawl_time.strftime('%Y-%m-%d %H:%M:%S'),
+            'deep': self.deep
+        }
+        return dict_con
