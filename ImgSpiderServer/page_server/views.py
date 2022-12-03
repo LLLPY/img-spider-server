@@ -32,8 +32,8 @@ def upload_page(request):
                         setattr(new_page_obj, attr, item[attr])
                 new_page_obj.save()
                 cache.set(k, item['url'], 24 * 60 * 60)
-            else:
-                print('页面已经存在...', page_str)
+            # else:
+            #     print('页面已经存在...', page_str)
         response_data = {
             'code': '200',
             'msg': '页面上传成功!',
@@ -60,14 +60,12 @@ def get_ready_page(request):
 def update_page(request):
     if request.method == 'POST':
         page_dict = json.loads(request.POST.get('page'))
-        uid=page_dict.get('uid','')
-        page_obj=Page.objects.filter(uid=uid).first()
+        uid = page_dict.get('uid', '')
+        page_obj = Page.objects.filter(uid=uid).first()
         if page_obj:
-            page_obj.status=page_dict['status']
-            page_obj.deep=page_dict['deep']
-            page_obj.img_count=page_dict['img_count']
+            page_obj.status = page_dict['status']
+            page_obj.deep = page_dict['deep']
         page_obj.save()
-        print(666666)
         response_data = {
             'code': '200',
             'msg': '响应成功!',

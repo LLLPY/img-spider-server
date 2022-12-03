@@ -69,8 +69,8 @@ def upload_img(request):
                         setattr(new_img_obj, attr, item[attr])
                 new_img_obj.save()
                 cache.set(k, item['url'], 24 * 60 * 60)
-            else:
-                print('图片已经存在...', img_str)
+            # else:
+            #     print('图片已经存在...', img_str)
         response_data = {
             'code': '200',
             'msg': '图片上传成功!',
