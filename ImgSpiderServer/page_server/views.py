@@ -65,6 +65,7 @@ def update_page(request):
         if page_obj:
             page_obj.status = page_dict['status']
             page_obj.deep = page_dict['deep']
+
         page_obj.save()
         response_data = {
             'code': '200',

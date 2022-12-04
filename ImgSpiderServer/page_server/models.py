@@ -70,8 +70,6 @@ class Page(models.Model):
     # 爬取的时间
     crawl_time = models.DateTimeField(db_column='爬取时间', verbose_name='爬取时间', help_text='爬取时间')
 
-    img_count = models.IntegerField(default=0, db_column='页面上的图片', verbose_name='页面上的图片', help_text='页面上的图片')
-
     source = models.CharField(max_length=20, db_column='爬取源', verbose_name='爬取源', help_text='爬取源')
 
     # 爬取深度，最大爬取深度为3
@@ -102,8 +100,9 @@ class Page(models.Model):
             'uid': self.uid,
             'status': self.status,
             'source': self.source,
-            'img_count': self.img_count,
             'crawl_time': self.crawl_time.strftime('%Y-%m-%d %H:%M:%S'),
             'deep': self.deep
         }
         return dict_con
+
+

@@ -129,6 +129,12 @@ class PageAdmin(admin.ModelAdmin):
         'page_url'
     ]
 
+    def img_count(self, obj):
+        count = Img.objects.filter(page=obj).count()
+        return count
+
+    img_count.short_description = '页面上的图片'
+
     def img_crawled_count(self, obj):
         count = Img.objects.filter(Q(page=obj) & Q(status=Img.STATUS_CRAWLED)).count()
         return count

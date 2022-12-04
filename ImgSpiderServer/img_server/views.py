@@ -35,16 +35,16 @@ def catch_error(func):
 
 # 根据keyword，返回该keyword下未爬取的图片
 @catch_error
-def get_img(request):
-    if request.method == 'GET':
-        keyword = request.GET.get('keyword')
+def get_uncrawl_img_by_keyword(request):
+    if request.method == 'POST':
+        keyword = request.POST.get('keyword')
 
-        img_obj, success = Img.get_uncrawl_img_by_keyword(keyword)
-        print(img_obj, success)
+        img_obj = Img.get_uncrawl_img_by_keyword(keyword)
+        img_dict = img_obj.to_dict() if img_obj else {}
         response_data = {
             'code': '200',
             'msg': '响应成功!',
-            'data': None
+            'data': img_dict
         }
         return JsonResponse(response_data)
 
@@ -67,7 +67,8 @@ def upload_img(request):
                         new_img_obj.page = page
                     else:
                         setattr(new_img_obj, attr, item[attr])
-                new_img_obj.save()
+                if page:
+                    new_img_obj.save()
                 cache.set(k, item['url'], 24 * 60 * 60)
             # else:
             #     print('图片已经存在...', img_str)
@@ -95,5 +96,36 @@ def check_dup_uid(request):
             'code': '200',
             'msg': '响应成功!',
             'data': res_uid_list
+        }
+        return JsonResponse(response_data)
+
+
+@catch_error
+def get_ready_img_list(request):
+    if request.method == 'POST':
+        keyword = request.POST.get('keyword')
+        img_dict_list = Img.get_ready_img_list(keyword)
+        response_data = {
+            'code': '200',
+            'msg': '响应成功!',
+            'data': img_dict_list
+        }
+        return JsonResponse(response_data)
+
+
+@catch_error
+def update_img(request):
+    if request.method == 'POST':
+
+        img_dict_list = json.loads(request.POST.get('img_list'))
+        for img_dict in img_dict_list:
+            img_obj = Img.objects.filter(uid=img_dict['uid']).first()
+            img_obj.status = img_dict['status']
+            img_obj.save()
+
+        response_data = {
+            'code': '200',
+            'msg': '响应成功!',
+            'data': None
         }
         return JsonResponse(response_data)
