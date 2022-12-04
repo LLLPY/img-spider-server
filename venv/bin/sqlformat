@@ -1,4 +1,4 @@
-#!/home/lll/Desktop/img-spider-server/venv/bin/python3
+#!/home/admin/img-spider-server/venv/bin/python
 # -*- coding: utf-8 -*-
 import re
 import sys

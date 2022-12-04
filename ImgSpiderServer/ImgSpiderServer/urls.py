@@ -23,9 +23,9 @@ admin.site.site_title = 'Img-Spider管理后台'
 admin.site.index_title = 'Img-Spider管理后台'
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('img_server/', include(('img_server.urls', 'img_server'), namespace='img_server')),
-    path('page_server/', include(('page_server.urls', 'page_server'), namespace='page_server')),
-    path('api/docs/', include_docs_urls(title='Img-Spider api docs')),
-    path('', lambda a: render(a, 'admin_index.html'), name='admin_index'),
+    path('img-spider-server/admin/', admin.site.urls),
+    path('img-spider-server/img_server/', include(('img_server.urls', 'img_server'), namespace='img_server')),
+    path('img-spider-server/page_server/', include(('page_server.urls', 'page_server'), namespace='page_server')),
+    path('img-spider-server/api/docs/', include_docs_urls(title='Img-Spider api docs')),
+    path('img-spider-server/', lambda a: render(a, 'admin_index.html'), name='admin_index'),
 ]
