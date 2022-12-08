@@ -1,3 +1,5 @@
+import datetime
+
 from django.core.cache import cache
 from django.shortcuts import render
 
@@ -28,10 +30,12 @@ def upload_page(request):
                 for attr in item:
                     if attr == 'keyword':
                         new_page_obj.keyword = Keyword.get_or_create(item['keyword'])
+                    elif attr == 'crawl_time':
+                        new_page_obj.crawl_time = datetime.datetime.fromtimestamp(item[attr])
                     else:
                         setattr(new_page_obj, attr, item[attr])
                 new_page_obj.save()
-                cache.set(k, item['url'], 24 * 60 * 60)
+                cache.set(k, item['url'])
             # else:
             #     print('页面已经存在...', page_str)
         response_data = {

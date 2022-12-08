@@ -61,7 +61,7 @@ class Page(models.Model):
     # 所属分类，根据哪个关键字爬取的就是哪个分类
     keyword = models.ForeignKey(Keyword, on_delete=models.CASCADE, db_column='关键字', verbose_name='关键字', help_text='关键字')
 
-    url = models.URLField(db_index=True, db_column='页面地址', verbose_name='页面地址', help_text='页面地址')
+    url = models.URLField(db_index=True, db_column='页面地址', verbose_name='页面地址', help_text='页面地址',max_length=500)
     # 唯一标识
     uid = models.CharField(max_length=100, db_index=True, db_column='唯一标识', verbose_name='唯一标识', help_text='唯一标识')
     # 爬取状态 
@@ -100,7 +100,7 @@ class Page(models.Model):
             'uid': self.uid,
             'status': self.status,
             'source': self.source,
-            'crawl_time': self.crawl_time.strftime('%Y-%m-%d %H:%M:%S'),
+            'crawl_time': self.crawl_time.timestamp(),
             'deep': self.deep
         }
         return dict_con

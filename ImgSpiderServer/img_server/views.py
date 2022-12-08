@@ -1,3 +1,5 @@
+import datetime
+
 from django.core.cache import cache
 from django.shortcuts import render
 from django.views import View
@@ -54,10 +56,12 @@ def get_uncrawl_img_by_keyword(request):
 def upload_img(request):
     if request.method == 'POST':
         img_list = json.loads(request.POST.get('img_list', '[]'))
+        done = True
         for item in img_list:
             k = item['uid']
             img_str = cache.get(k)
             if not img_str:
+                done = False  # 不是所有的图片都存在
                 new_img_obj = Img()
                 for attr in item:
                     if attr == 'keyword':
@@ -65,17 +69,18 @@ def upload_img(request):
                     elif attr == 'page_url':
                         page = Page.objects.filter(url=item['page_url']).first()
                         new_img_obj.page = page
+                    elif attr == 'crawl_time':
+                        new_img_obj.crawl_time = datetime.datetime.fromtimestamp(item[attr])
                     else:
                         setattr(new_img_obj, attr, item[attr])
                 if page:
                     new_img_obj.save()
-                cache.set(k, item['url'], 24 * 60 * 60)
-            # else:
-            #     print('图片已经存在...', img_str)
+                cache.set(k, item['url'])
+
         response_data = {
             'code': '200',
             'msg': '图片上传成功!',
-            'data': None
+            'data': {'done':done}
         }
         return JsonResponse(response_data)
 
