@@ -8,7 +8,7 @@ from img_server.models import Img
 import json
 
 # Create your views here.
-from page_server.models import Keyword, Page
+from page_server.models import Keyword, Page, API
 
 
 class ImgView(View):
@@ -52,7 +52,7 @@ def get_uncrawl_img_by_keyword(request):
 
 
 # 上传图片
-@catch_error
+# @catch_error
 def upload_img(request):
     if request.method == 'POST':
         img_list = json.loads(request.POST.get('img_list', '[]'))
@@ -71,16 +71,19 @@ def upload_img(request):
                         new_img_obj.page = page
                     elif attr == 'crawl_time':
                         new_img_obj.crawl_time = datetime.datetime.fromtimestamp(item[attr])
+                    elif attr == 'api':
+                        api_obj = API.objects.filter(uid=item['api']).first()
+                        new_img_obj.api = api_obj
                     else:
                         setattr(new_img_obj, attr, item[attr])
                 if page:
                     new_img_obj.save()
-                cache.set(k, item['url'])
+                cache.set(k, item['uid'], 60 * 60 * 24 * 365 * 10)
 
         response_data = {
             'code': '200',
             'msg': '图片上传成功!',
-            'data': {'done':done}
+            'data': {'done': done}
         }
         return JsonResponse(response_data)
 

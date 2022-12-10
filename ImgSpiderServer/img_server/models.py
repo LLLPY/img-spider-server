@@ -1,5 +1,5 @@
 from django.db import models
-from page_server.models import Page, Keyword
+from page_server.models import Page, Keyword, API
 from django.db.models import Q
 
 
@@ -9,7 +9,7 @@ class Img(models.Model):
     # 待爬取
     STATUS_UNCRAWL = 0
     # 爬取中
-    STATUS_CRAWLIMG = 1
+    STATUS_CRAWLING = 1
     # 已爬取
     STATUS_CRAWLED = 2
     # 爬取错误
@@ -17,7 +17,7 @@ class Img(models.Model):
     # 状态(是否用于图片搜索了)
     STATUS_MAPPING = (
         (STATUS_UNCRAWL, '待爬取'),
-        (STATUS_CRAWLIMG, '爬取中'),
+        (STATUS_CRAWLING, '爬取中'),
         (STATUS_CRAWLED, '已爬取'),
         (STATUS_ERROR, '爬取错误'),
     )
@@ -29,15 +29,24 @@ class Img(models.Model):
         (QUALIFY, '合格'),
         (UNQUALIFY, '不合格')
     )
+
+    # 文件类型
+    FILE_IMAGE = 0
+    FILE_VIDEO = 1
+    FILE_TYPE_MAPPING = (
+        (FILE_IMAGE, '图片'),
+        (FILE_VIDEO, '视频')
+    )
+
     # 所属分类，根据哪个关键字爬取的就是哪个分类
     keyword = models.ForeignKey(Keyword, on_delete=models.CASCADE, db_column='关键字', verbose_name='关键字', help_text='关键字')
     # 原图
-    url = models.URLField(db_column='图片地址', verbose_name='图片地址', help_text='图片地址',max_length=500)
+    url = models.URLField(db_column='图片地址', verbose_name='图片地址', help_text='图片地址', max_length=500)
     # 缩略图
-    thumb_url = models.URLField(db_column='缩略图地址', verbose_name='缩略图地址', help_text='缩略图地址',max_length=500)
+    thumb_url = models.URLField(db_column='缩略图地址', verbose_name='缩略图地址', help_text='缩略图地址', max_length=500)
 
     # 唯一标识 建立索引
-    uid = models.CharField(unique=True, db_index=True, max_length=100, db_column='唯一标识', verbose_name='唯一标识',
+    uid = models.CharField(unique=True, max_length=100, db_index=True, db_column='唯一标识', verbose_name='唯一标识',
                            help_text='唯一标识')
 
     # 爬取状态
@@ -57,6 +66,16 @@ class Img(models.Model):
                                   help_text='是否合格')
 
     source = models.CharField(max_length=20, db_column='爬取源', verbose_name='爬取源', help_text='爬取源')
+    # 错误信息
+    err_msg = models.CharField(max_length=500, default='', db_column='错误信息', verbose_name='错误信息', help_text='错误信息')
+
+    # 文件类型
+    file_type = models.IntegerField(default=0, choices=FILE_TYPE_MAPPING, db_column='文件类型', verbose_name='文件类型',
+                                    help_text='文件类型')
+
+    # api
+    api = models.ForeignKey(API, on_delete=models.CASCADE, db_column='api', verbose_name='api', help_text='api',
+                            null=True)
 
     class Meta:
         db_table = '图片'
@@ -85,8 +104,14 @@ class Img(models.Model):
         tmp_dict['uid'] = self.uid
         tmp_dict['status'] = self.status
         tmp_dict['page_url'] = self.page.url
-        tmp_dict['crawl_time'] = self.crawl_time
+        tmp_dict['crawl_time'] = self.crawl_time.timestamp()
         tmp_dict['desc'] = self.desc
         tmp_dict['qualify'] = self.qualify
         tmp_dict['source'] = self.source
+        tmp_dict['err_msg'] = self.err_msg
+        tmp_dict['file_type'] = self.file_type
+        if self.api:
+            tmp_dict['api'] = self.api.url
+        else:
+            tmp_dict['api'] = ''
         return tmp_dict
