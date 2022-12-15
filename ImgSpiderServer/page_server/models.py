@@ -47,13 +47,14 @@ class API(models.Model):
 
     crawl_time = models.DateTimeField(db_column='爬取时间', verbose_name='爬取时间', help_text='爬取时间')
 
-    desc = models.CharField(max_length=500, default='', db_column='描述', verbose_name='描述', help_text='描述')
+    desc = models.CharField(max_length=500, default='', blank=True, db_column='描述', verbose_name='描述', help_text='描述')
 
     # md5
     md5 = models.CharField(max_length=200, db_column='内容摘要', verbose_name='内容摘要', help_text='内容摘要')
 
     # 错误信息
-    err_msg = models.CharField(max_length=500, default='', db_column='错误信息', verbose_name='错误信息', help_text='错误信息')
+    err_msg = models.CharField(max_length=500, default='', blank=True, db_column='错误信息', verbose_name='错误信息',
+                               help_text='错误信息')
 
     class Meta:
         db_table = 'API'
@@ -109,12 +110,15 @@ class Page(models.Model):
     deep = models.IntegerField(default=1, choices=DEEP_MAPPING, db_column='爬取深度', verbose_name='爬取深度', help_text='爬取深度')
 
     # desc
-    desc = models.CharField(max_length=500, default='', db_column='描述', verbose_name='描述', help_text='描述')
+    desc = models.CharField(max_length=500, null=True, default='', blank=True, db_column='描述', verbose_name='描述',
+                            help_text='描述')
 
     # 错误信息
-    err_msg = models.CharField(max_length=500, default='', db_column='错误信息', verbose_name='错误信息', help_text='错误信息')
+    err_msg = models.CharField(max_length=500, null=True, default='', blank=True, db_column='错误信息', verbose_name='错误信息',
+                               help_text='错误信息')
 
-    api = models.ForeignKey(API, on_delete=models.CASCADE, db_column='api', verbose_name='api', help_text='api',
+    api = models.ForeignKey(API, on_delete=models.CASCADE, db_column='api', blank=True, verbose_name='api',
+                            help_text='api',
                             null=True)
 
     class Meta:
@@ -131,7 +135,7 @@ class Page(models.Model):
     def get_ready_page(cls, keyword):
         obj = cls.objects.filter(Q(status=cls.STATUS_UNCRAWL) & Q(deep__lte=3) & Q(keyword__name=keyword)).first()
         if obj:
-            obj.status=cls.STATUS_CRAWLING
+            obj.status = cls.STATUS_CRAWLING
             obj.save()
         return obj
 

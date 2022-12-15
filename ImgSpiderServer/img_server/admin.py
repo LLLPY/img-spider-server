@@ -9,7 +9,7 @@ class ImgAdmin(admin.ModelAdmin):
     save_on_bottom = True
     list_select_related = True
     save_as = True
-    search_fields = ['keyword__name', 'uid','page__url']
+    search_fields = ['keyword__name', 'uid', 'page__url']
     list_filter = [
         'keyword__name',
         'status',
@@ -22,6 +22,7 @@ class ImgAdmin(admin.ModelAdmin):
         'id',
         'keyword',
         'status',
+        'download',
         'crawl_time',
         'file_type',
         'source',

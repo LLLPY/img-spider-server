@@ -57,28 +57,30 @@ def upload_img(request):
     if request.method == 'POST':
         img_list = json.loads(request.POST.get('img_list', '[]'))
         done = True
-        for item in img_list:
-            k = item['uid']
-            img_str = cache.get(k)
-            if not img_str:
+        for img_dict in img_list:
+            if not cache.get(img_dict['uid']):
                 done = False  # 不是所有的图片都存在
                 new_img_obj = Img()
-                for attr in item:
-                    if attr == 'keyword':
-                        new_img_obj.keyword = Keyword.get_or_create(item['keyword'])
-                    elif attr == 'page_url':
-                        page = Page.objects.filter(url=item['page_url']).first()
-                        new_img_obj.page = page
-                    elif attr == 'crawl_time':
-                        new_img_obj.crawl_time = datetime.datetime.fromtimestamp(item[attr])
-                    elif attr == 'api':
-                        api_obj = API.objects.filter(uid=item['api']).first()
-                        new_img_obj.api = api_obj
-                    else:
-                        setattr(new_img_obj, attr, item[attr])
-                if page:
-                    new_img_obj.save()
-                cache.set(k, item['uid'], 60 * 60 * 24 * 365 * 10)
+                for attr in img_dict:
+                    try:
+                        if attr == 'keyword':
+                            new_img_obj.keyword = Keyword.get_or_create(img_dict['keyword'])
+                        elif attr == 'page_url':
+                            page = Page.objects.filter(url=img_dict['page_url']).first()
+                            new_img_obj.page = page
+                        elif attr == 'crawl_time':
+                            new_img_obj.crawl_time = datetime.datetime.fromtimestamp(img_dict[attr])
+                        elif attr == 'api':
+                            api_obj = API.objects.filter(uid=img_dict['api']).first()
+                            new_img_obj.api = api_obj
+                        else:
+                            setattr(new_img_obj, attr, img_dict[attr])
+                        new_img_obj.save()
+                    except Exception as e:
+                        print(2222, attr,img_dict[attr], e)
+            else:
+                print(f'图片已经存在...{img_dict}')
+                cache.set(img_dict['uid'], img_dict['url'], 60 * 60 * 24 * 365 * 10)
 
         response_data = {
             'code': '200',
@@ -128,7 +130,13 @@ def update_img(request):
         img_dict_list = json.loads(request.POST.get('img_list'))
         for img_dict in img_dict_list:
             img_obj = Img.objects.filter(uid=img_dict['uid']).first()
-            img_obj.status = img_dict['status']
+            for k in img_dict:
+                if k in ['api', 'page', 'keyword']:
+                    pass
+                elif k == 'crawl_time':
+                    img_obj.crawl_time = datetime.datetime.fromtimestamp(img_dict['crawl_time'])
+                else:
+                    setattr(img_obj, k, img_dict[k])
             img_obj.save()
 
         response_data = {

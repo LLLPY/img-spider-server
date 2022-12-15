@@ -1,3 +1,5 @@
+import datetime
+
 from django.db import models
 from page_server.models import Page, Keyword, API
 from django.db.models import Q
@@ -38,6 +40,15 @@ class Img(models.Model):
         (FILE_VIDEO, '视频')
     )
 
+    # 是否已下载到本地
+    UNDOWNLOAD = 0  # 未下载
+    DOWNLOADED = 1  # 已下载
+    DOWNLOAD_MAPPING = (
+        (UNDOWNLOAD, '未下载'),
+        (DOWNLOADED, '已下载'),
+
+    )
+
     # 所属分类，根据哪个关键字爬取的就是哪个分类
     keyword = models.ForeignKey(Keyword, on_delete=models.CASCADE, db_column='关键字', verbose_name='关键字', help_text='关键字')
     # 原图
@@ -54,20 +65,24 @@ class Img(models.Model):
                                  help_text='状态')
 
     # 图片所在的页面
-    page = models.ForeignKey(Page, on_delete=models.CASCADE, db_column='页面链接', verbose_name='页面链接', help_text='页面链接')
+    page = models.ForeignKey(Page, null=True,blank=True, on_delete=models.CASCADE, db_column='页面链接', verbose_name='页面链接',
+                             help_text='页面链接')
 
     # 爬取的时间
-    crawl_time = models.DateTimeField(db_column='爬取时间', verbose_name='爬取时间', help_text='爬取时间')
+    crawl_time = models.DateTimeField(default=datetime.datetime.now, db_column='爬取时间', verbose_name='爬取时间',
+                                      help_text='爬取时间')
 
     # 图片相关描述
-    desc = models.CharField(max_length=1000, db_column='图片描述', verbose_name='图片描述', help_text='图片描述')
+    desc = models.CharField(max_length=1000, null=True, default='', db_column='图片描述', verbose_name='图片描述',
+                            help_text='图片描述', blank=True)
 
     qualify = models.IntegerField(default=1, choices=QUALIFY_MAPPING, db_column='是否合格', verbose_name='是否合格',
                                   help_text='是否合格')
 
     source = models.CharField(max_length=20, db_column='爬取源', verbose_name='爬取源', help_text='爬取源')
     # 错误信息
-    err_msg = models.CharField(max_length=500, default='', db_column='错误信息', verbose_name='错误信息', help_text='错误信息')
+    err_msg = models.CharField(max_length=500, null=True, default='', db_column='错误信息', verbose_name='错误信息',
+                               help_text='错误信息', blank=True)
 
     # 文件类型
     file_type = models.IntegerField(default=0, choices=FILE_TYPE_MAPPING, db_column='文件类型', verbose_name='文件类型',
@@ -75,7 +90,11 @@ class Img(models.Model):
 
     # api
     api = models.ForeignKey(API, on_delete=models.CASCADE, db_column='api', verbose_name='api', help_text='api',
-                            null=True)
+                            null=True, blank=True)
+
+    # 是否已下载
+    download = models.IntegerField(default=UNDOWNLOAD, choices=DOWNLOAD_MAPPING, db_column='是否已下载',
+                                   verbose_name='是否已下载', help_text='是否已下载')
 
     class Meta:
         db_table = '图片'
@@ -85,7 +104,8 @@ class Img(models.Model):
     # 根据keyword获取一个状态是未爬取且是合格的图片对象
     @classmethod
     def get_uncrawl_img_by_keyword(cls, keyword):
-        img_obj = cls.objects.filter(Q(keyword__name=keyword) & Q(qualify=cls.QUALIFY)).first()
+        img_obj = cls.objects.filter(
+            Q(keyword__name=keyword) & Q(qualify=cls.QUALIFY) & Q(status=cls.STATUS_UNCRAWL)).first()
         return img_obj
 
     @classmethod
@@ -110,6 +130,7 @@ class Img(models.Model):
         tmp_dict['source'] = self.source
         tmp_dict['err_msg'] = self.err_msg
         tmp_dict['file_type'] = self.file_type
+        tmp_dict['download'] = self.download
         if self.api:
             tmp_dict['api'] = self.api.url
         else:
