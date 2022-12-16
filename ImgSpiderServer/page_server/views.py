@@ -76,7 +76,6 @@ def upload_page(request):
                         setattr(new_page_obj, attr, item[attr])
                 new_page_obj.save()
 
-
                 cache.set(k, item['uid'], 60 * 60 * 24 * 365 * 10)
         response_data = {
             'code': '200',

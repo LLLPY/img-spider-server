@@ -13,6 +13,7 @@ class ImgAdmin(admin.ModelAdmin):
     list_filter = [
         'keyword__name',
         'status',
+        'download',
         'source',
         'qualify',
         'crawl_time',

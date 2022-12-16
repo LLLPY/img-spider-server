@@ -3,7 +3,7 @@ import datetime
 from django.core.cache import cache
 from django.shortcuts import render
 from django.views import View
-from django.http import HttpResponse, JsonResponse
+from django.http import JsonResponse
 from img_server.models import Img
 import json
 
@@ -51,8 +51,9 @@ def get_uncrawl_img_by_keyword(request):
         return JsonResponse(response_data)
 
 
+
 # 上传图片
-# @catch_error
+@catch_error
 def upload_img(request):
     if request.method == 'POST':
         img_list = json.loads(request.POST.get('img_list', '[]'))
@@ -61,26 +62,26 @@ def upload_img(request):
             if not cache.get(img_dict['uid']):
                 done = False  # 不是所有的图片都存在
                 new_img_obj = Img()
-                for attr in img_dict:
-                    try:
+                try:
+                    for attr in img_dict:
                         if attr == 'keyword':
                             new_img_obj.keyword = Keyword.get_or_create(img_dict['keyword'])
                         elif attr == 'page_url':
                             page = Page.objects.filter(url=img_dict['page_url']).first()
                             new_img_obj.page = page
                         elif attr == 'crawl_time':
-                            new_img_obj.crawl_time = datetime.datetime.fromtimestamp(img_dict[attr])
+                            pass
+                            # new_img_obj.crawl_time = datetime.datetime.fromtimestamp(img_dict[attr])
                         elif attr == 'api':
                             api_obj = API.objects.filter(uid=img_dict['api']).first()
                             new_img_obj.api = api_obj
                         else:
                             setattr(new_img_obj, attr, img_dict[attr])
                         new_img_obj.save()
-                    except Exception as e:
-                        print(2222, attr,img_dict[attr], e)
-            else:
-                print(f'图片已经存在...{img_dict}')
-                cache.set(img_dict['uid'], img_dict['url'], 60 * 60 * 24 * 365 * 10)
+                except Exception as e:
+                    print(2222, e)
+
+            cache.set(img_dict['uid'], img_dict['url'], 60 * 60 * 24 * 365 * 10)
 
         response_data = {
             'code': '200',
@@ -111,10 +112,10 @@ def check_dup_uid(request):
 
 
 @catch_error
-def get_ready_img_list(request):
+def get_undownload_img_list(request):
     if request.method == 'POST':
         keyword = request.POST.get('keyword')
-        img_dict_list = Img.get_ready_img_list(keyword)
+        img_dict_list = Img.get_undownload_img_list(keyword)
         response_data = {
             'code': '200',
             'msg': '响应成功!',

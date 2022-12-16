@@ -76,10 +76,20 @@ WSGI_APPLICATION = 'ImgSpiderServer.wsgi.application'
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
 DATABASES = {
-    'default': {
+    'dev': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
+    },
+
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'img_spider',
+        'HOST': '127.0.0.1',
+        'PORT': '3306',
+        'USER': 'root',
+        'PASSWORD': '1234',
     }
+
 }
 
 # Password validation
@@ -117,12 +127,12 @@ USE_TZ = False
 STATIC_URL = 'img-spider-server/static/'
 STATIC_URL = 'static/'
 
-#静态文件的目录
+# 静态文件的目录
 STATICFILES_DIRS = [
-   os.path.join(BASE_DIR, 'static')
+    os.path.join(BASE_DIR, 'static')
 ]
 
-#静态文件收集后的目录
+# 静态文件收集后的目录
 # STATIC_ROOT=os.path.join(BASE_DIR,'static')
 
 # Default primary key field type
@@ -188,8 +198,7 @@ CACHES = {
     }
 }
 
-
-#restframework
+# restframework
 REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema',
 }

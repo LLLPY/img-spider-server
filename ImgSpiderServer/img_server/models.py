@@ -43,9 +43,13 @@ class Img(models.Model):
     # 是否已下载到本地
     UNDOWNLOAD = 0  # 未下载
     DOWNLOADED = 1  # 已下载
+    DOWNLOADING = 2  # 下载中
+    DOWNLOADERROR = 3  # 下载失败
     DOWNLOAD_MAPPING = (
         (UNDOWNLOAD, '未下载'),
         (DOWNLOADED, '已下载'),
+        (DOWNLOADING, '下载中'),
+        (DOWNLOADERROR, '下载失败'),
 
     )
 
@@ -65,7 +69,8 @@ class Img(models.Model):
                                  help_text='状态')
 
     # 图片所在的页面
-    page = models.ForeignKey(Page, null=True,blank=True, on_delete=models.CASCADE, db_column='页面链接', verbose_name='页面链接',
+    page = models.ForeignKey(Page, null=True, blank=True, on_delete=models.CASCADE, db_column='页面链接',
+                             verbose_name='页面链接',
                              help_text='页面链接')
 
     # 爬取的时间
@@ -106,12 +111,19 @@ class Img(models.Model):
     def get_uncrawl_img_by_keyword(cls, keyword):
         img_obj = cls.objects.filter(
             Q(keyword__name=keyword) & Q(qualify=cls.QUALIFY) & Q(status=cls.STATUS_UNCRAWL)).first()
+        if img_obj:
+            img_obj.status = cls.STATUS_CRAWLING
+            img_obj.save()
         return img_obj
 
     @classmethod
-    def get_ready_img_list(cls, keyword):
-        img_obj_list = cls.objects.filter(Q(keyword__name=keyword) & Q(status=cls.STATUS_UNCRAWL))[:50]
-        img_dict_list = [img_obj.to_dict() for img_obj in img_obj_list]
+    def get_undownload_img_list(cls, keyword):
+        img_obj_list = cls.objects.filter(Q(keyword__name=keyword) & Q(download=cls.UNDOWNLOAD))[:100]
+        img_dict_list = []
+        for img_obj in img_obj_list:
+            img_obj.download = cls.DOWNLOADING
+            img_obj.save()
+            img_dict_list.append(img_obj.to_dict())
         return img_dict_list
 
     # to dict
