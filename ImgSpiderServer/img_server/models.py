@@ -56,9 +56,9 @@ class Img(models.Model):
     # 所属分类，根据哪个关键字爬取的就是哪个分类
     keyword = models.ForeignKey(Keyword, on_delete=models.CASCADE, db_column='关键字', verbose_name='关键字', help_text='关键字')
     # 原图
-    url = models.URLField(db_column='图片地址', verbose_name='图片地址', help_text='图片地址', max_length=500)
+    url = models.URLField(db_column='图片地址', verbose_name='图片地址', help_text='图片地址', max_length=1000)
     # 缩略图
-    thumb_url = models.URLField(db_column='缩略图地址', verbose_name='缩略图地址', help_text='缩略图地址', max_length=500)
+    thumb_url = models.URLField(db_column='缩略图地址', verbose_name='缩略图地址', help_text='缩略图地址', max_length=1000)
 
     # 唯一标识 建立索引
     uid = models.CharField(unique=True, max_length=100, db_index=True, db_column='唯一标识', verbose_name='唯一标识',
@@ -118,7 +118,7 @@ class Img(models.Model):
 
     @classmethod
     def get_undownload_img_list(cls, keyword):
-        img_obj_list = cls.objects.filter(Q(keyword__name=keyword) & Q(download=cls.UNDOWNLOAD))[:100]
+        img_obj_list = cls.objects.filter(Q(keyword__name=keyword) & Q(download=cls.UNDOWNLOAD))[:50]
         img_dict_list = []
         for img_obj in img_obj_list:
             img_obj.download = cls.DOWNLOADING
@@ -135,7 +135,10 @@ class Img(models.Model):
         tmp_dict['thumb_url'] = self.thumb_url
         tmp_dict['uid'] = self.uid
         tmp_dict['status'] = self.status
-        tmp_dict['page_url'] = self.page.url
+        if self.page:
+            tmp_dict['page_url'] = self.page.url
+        else:
+            tmp_dict['page_url'] = ''
         tmp_dict['crawl_time'] = self.crawl_time.timestamp()
         tmp_dict['desc'] = self.desc
         tmp_dict['qualify'] = self.qualify

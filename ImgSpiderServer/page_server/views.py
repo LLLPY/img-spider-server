@@ -23,13 +23,14 @@ def upload_api(request):
         api_obj = API.get_by_uid(api_uid)
         if not api_obj:
             api_obj = API()
-            for attr in api_dict:
-                if attr == 'keyword':
-                    api_obj.keyword = Keyword.get_or_create(api_dict['keyword'])
-                elif attr == 'crawl_time':
-                    api_obj.crawl_time = datetime.datetime.fromtimestamp(api_dict[attr])
-                else:
-                    setattr(api_obj, attr, api_dict[attr])
+            api_obj.keyword = Keyword.get_or_create(api_dict['keyword'])
+            api_obj.url = api_dict['url']
+            api_obj.uid = api_dict['uid']
+            api_obj.source = api_dict['source']
+            api_obj.crawl_time = datetime.datetime.fromtimestamp(api_dict['crawl_time'])
+            api_obj.desc = api_dict['desc']
+            api_obj.md5 = api_dict['md5']
+            api_obj.err_msg = api_dict['err_msg'][:500]
             api_obj.save()
 
         response_data = {
@@ -59,24 +60,22 @@ def is_crawled_api(request):
 def upload_page(request):
     if request.method == 'POST':
         page_list = json.loads(request.POST.get('page_list', '[]'))
-        for item in page_list:
-            k = item['uid']
-            page_str = cache.get(k)
+        for page_dict in page_list:
+            page_str = cache.get(page_dict['uid'])
             if not page_str:
                 new_page_obj = Page()
-                for attr in item:
-                    if attr == 'keyword':
-                        new_page_obj.keyword = Keyword.get_or_create(item['keyword'])
-                    elif attr == 'crawl_time':
-                        new_page_obj.crawl_time = datetime.datetime.fromtimestamp(item[attr])
-                    elif attr == 'api':
-                        api_obj = API.objects.filter(uid=item['api']).first()
-                        new_page_obj.api = api_obj
-                    else:
-                        setattr(new_page_obj, attr, item[attr])
+                new_page_obj.keyword = Keyword.get_or_create(page_dict['keyword'])
+                new_page_obj.url = page_dict['url']
+                new_page_obj.uid = page_dict['uid']
+                new_page_obj.status = page_dict['status']
+                new_page_obj.crawl_time = datetime.datetime.fromtimestamp(page_dict['crawl_time'])
+                new_page_obj.source = page_dict['source']
+                new_page_obj.deep = page_dict['deep']
+                new_page_obj.desc = page_dict['desc']
+                new_page_obj.err_msg = page_dict['err_msg'][:490]
+                new_page_obj.api = API.objects.filter(uid=page_dict['api']).first()
                 new_page_obj.save()
-
-                cache.set(k, item['uid'], 60 * 60 * 24 * 365 * 10)
+            cache.set(page_dict['uid'], page_dict['url'], 60 * 60 * 24 * 365 * 10)
         response_data = {
             'code': '200',
             'msg': '页面上传成功!',
@@ -105,13 +104,17 @@ def update_page(request):
     if request.method == 'POST':
         page_dict = json.loads(request.POST.get('page'))
         uid = page_dict.get('uid', '')
-        page_obj = Page.objects.filter(uid=uid).first()
-        if page_obj:
-            for attr in page_dict:
-                if attr in {'crawl_time', 'keyword', 'api'}:
-                    pass
-                else:
-                    setattr(page_obj, attr, page_dict[attr])
+        page_obj = Page.objects.filter(uid=uid).first() or Page()
+        page_obj.keyword = Keyword.get_or_create(page_dict['keyword'])
+        page_obj.url = page_dict['url']
+        page_obj.uid = page_dict['uid']
+        page_obj.status = page_dict['status']
+        page_obj.crawl_time = datetime.datetime.fromtimestamp(page_dict['crawl_time'])
+        page_obj.source = page_dict['source']
+        page_obj.deep = page_dict['deep']
+        page_obj.desc = page_dict['desc']
+        page_obj.err_msg = page_dict['err_msg'][:500]
+        page_obj.api = API.objects.filter(uid=page_dict['api']).first()
         page_obj.save()
         response_data = {
             'code': '200',
