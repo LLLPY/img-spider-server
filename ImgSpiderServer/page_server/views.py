@@ -60,9 +60,12 @@ def is_crawled_api(request):
 def upload_page(request):
     if request.method == 'POST':
         page_list = json.loads(request.POST.get('page_list', '[]'))
+        # print(1111, page_list)
         for page_dict in page_list:
-            page_str = cache.get(page_dict['uid'])
-            if not page_str:
+            # page_str = cache.get(page_dict['uid'])
+            # print(66666, page_str)
+            # 改为直接在数据库中查找
+            if not Page.objects.filter(uid=page_dict['uid']).exists():
                 new_page_obj = Page()
                 new_page_obj.keyword = Keyword.get_or_create(page_dict['keyword'])
                 new_page_obj.url = page_dict['url']
