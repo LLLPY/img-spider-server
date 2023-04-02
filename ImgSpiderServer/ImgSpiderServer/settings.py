@@ -125,7 +125,7 @@ USE_TZ = False
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
 STATIC_URL = 'img-spider-server/static/'
-STATIC_URL = 'static/'
+#STATIC_URL = 'static/'
 
 # 静态文件的目录
 STATICFILES_DIRS = [
@@ -133,7 +133,7 @@ STATICFILES_DIRS = [
 ]
 
 # 静态文件收集后的目录
-# STATIC_ROOT=os.path.join(BASE_DIR,'static')
+#STATIC_ROOT=os.path.join(BASE_DIR,'static')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field

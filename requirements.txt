@@ -1,0 +1,9 @@
+django==4.1.4
+django-simpleui==2022.12.18
+djangorestframework==3.14.0
+uwsgi==2.0.21
+pymysql==1.0.3
+coreapi==2.3.3
+
+-i  https://mirrors.aliyun.com/pypi/simple/
+
