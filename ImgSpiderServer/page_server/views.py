@@ -53,7 +53,6 @@ def is_crawled_api(request):
             'data': {'crawled': crawled}
         }
         return JsonResponse(response_data)
-    return JsonResponse({'111': '222'})
 
 
 # 上传页面
