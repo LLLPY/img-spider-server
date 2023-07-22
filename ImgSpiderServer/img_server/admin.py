@@ -50,14 +50,14 @@ class ImgAdmin(admin.ModelAdmin):
     def url_operator(self, obj):
         return format_html(f'<a href="{obj.url}" target="block">点击查看</a>')
 
-    url_operator.short_description = 'url'
+    url_operator.short_description = '原图链接'
 
     def thumb_url_operator(self, obj):
         return format_html(f'<a href="{obj.thumb_url}" target="block">点击查看</a>')
 
-    thumb_url_operator.short_description = 'thumb_url'
+    thumb_url_operator.short_description = '缩略图'
 
     def page_url_operator(self, obj):
         return format_html(f'<a href="{obj.page}" target="block">点击查看</a>')
 
-    page_url_operator.short_description = 'page_url'
+    page_url_operator.short_description = '所在页面'
