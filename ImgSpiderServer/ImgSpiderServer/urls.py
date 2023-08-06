@@ -24,10 +24,10 @@ from keyword_server.views import KeywordViewSet
 from page_server.views import PageViewSet
 
 router = DefaultRouter(trailing_slash=False)
-router.register('keyword_server/', KeywordViewSet, basename='keyword_server')
-router.register('api_server/', ApiViewSet, basename='api_server')
-router.register('page_server/', PageViewSet, basename='page_server')
-router.register('img_server/', ImgViewSet, basename='img_server')
+router.register('keyword_server', KeywordViewSet, basename='keyword_server')
+router.register('api_server', ApiViewSet, basename='api_server')
+router.register('page_server', PageViewSet, basename='page_server')
+router.register('img_server', ImgViewSet, basename='img_server')
 
 admin.site.site_header = 'Img-Spider管理后台'
 admin.site.site_title = 'Img-Spider管理后台'

@@ -154,7 +154,7 @@ SIMPLEUI_HOME_QUICK = True
 SIMPLEUI_HOME_ACTION = False
 
 # 修改左侧菜单首页设置
-SIMPLEUI_HOME_PAGE = '../'  # 指向页面
+SIMPLEUI_HOME_PAGE = '../../'  # 指向页面
 SIMPLEUI_HOME_TITLE = 'Img-Spider'  # 首页标题
 SIMPLEUI_HOME_ICON = 'fa fa-spider'  # 首页图标
 

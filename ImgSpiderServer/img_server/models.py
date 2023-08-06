@@ -67,7 +67,8 @@ class Img(BaseModel):
     # 根据keyword获取一个状态是未爬取且是合格的图片对象
     @classmethod
     def get_uncrawl_img(cls, keyword, source):
-        img_obj = cls.objects.filter(keyword__name=keyword, qualify=cls.QUALIFY, status_config__contains={source: True}).first()
+        img_obj = cls.objects.filter(keyword__name=keyword, is_qualify=cls.QUALIFY).exclude(
+            status_config__has_key=source).first()
         if img_obj:
             img_obj.status = cls.STATUS_CRAWLING
             img_obj.save()
@@ -75,21 +76,23 @@ class Img(BaseModel):
 
     @classmethod
     def get_undownload_img_list(cls, keyword):
-        img_obj_list = cls.objects.filter(keyword__name=keyword, download=cls.UNDOWNLOAD)[:50]
-        img_obj_list.update(is_download=cls.DOWNLOADING)
+        img_obj_list = cls.objects.filter(keyword__name=keyword, is_download=cls.UNDOWNLOAD)[:50]
         img_dict_list = []
         for img_obj in img_obj_list:
+            img_obj.is_download = cls.DOWNLOADING
+            img_obj.save()
             img_dict_list.append(img_obj.to_dict())
         return img_dict_list
 
     @classmethod
-    def create(cls, keyword, url, thumb_url, uid, page_uid, update_time, desc, source, err_msg, file_type, api_uid):
+    def create(cls, keyword, url, thumb_url, uid, page_uid, update_time, desc, source, err_msg, file_type, api_uid,
+               status_config):
         keyword = Keyword.get_or_create(keyword)
-        update_time = datetime.datetime.fromtimestamp(update_time)
+        print(11111, update_time, type(update_time))
+        update_time = datetime.datetime.fromtimestamp(int(float(update_time)))
         page = Page.get_by_uid(page_uid)
         api = API.get_by_uid(api_uid)
         _self = cls(keyword=keyword, url=url, thumb_url=thumb_url, uid=uid, page=page, update_time=update_time,
-                    desc=desc, source=source, err_msg=err_msg, file_type=file_type, api=api)
+                    desc=desc, source=source, err_msg=err_msg, file_type=file_type, api=api,
+                    status_config=status_config)
         return _self.save()
-
-

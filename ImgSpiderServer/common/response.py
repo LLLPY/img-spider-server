@@ -2,7 +2,7 @@ from rest_framework.response import Response
 
 
 class SucResponse(Response):
-    CODE = "0"
+    CODE = "200"
 
     def __init__(self, message='请求成功', data=None, error_code="", status=None, headers=None, content_type=None, **kwargs):
         dic = {'code': self.CODE, 'message': message, 'data': {}, 'errorCode': error_code}
