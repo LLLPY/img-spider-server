@@ -1,143 +1,89 @@
 import datetime
 from django.core.cache import cache
-from django.shortcuts import render
-from django.views import View
-from django.http import JsonResponse
+from rest_framework.decorators import action
+
+from common.models import Keyword
+from common.response import ErrResponse, SucResponse
 from img_server.models import Img
-import json
-from page_server.models import Keyword, Page, API
+from img_server.serializers import ImgSerializers
+from rest_framework import viewsets
+
+from page_server.models import API, Page
 
 
-class ImgView(View):
+class ImgViewSet(viewsets.ModelViewSet):
+    serializer_class = ImgSerializers
+    queryset = Img.objects.all()
 
-    def get(self, request):
-        return render(request, 'admin_index.html')
+    @action(methods=['post'], detail=False)
+    def get_uncrawl_img(self, request, *args, **kwargs):
+        # 根据keyword，返回该keyword下未爬取的图片
+        serializer = self.get_serializer(data=self.request.data, include_fields=['keyword', 'source'])
+        serializer.is_valid(raise_exception=True)
+        keyword = serializer.data.get('keyword')
+        source = serializer.data.get('source')
 
+        img_obj = Img.get_uncrawl_img(keyword=keyword, source=source)
+        if not img_obj:
+            return ErrResponse(message='无可用img')
 
-# 捕获异常并返回
-def catch_error(func):
-    def inner(*args, **kwargs):
-        try:
-            res = func(*args, **kwargs)
-        except Exception as e:
-            response_data = {
-                'code': '400',
-                'msg': e.__repr__(),
-                'data': None
-            }
-            print(e)
-            return JsonResponse(response_data)
-        return res
+        return SucResponse(data=img_obj.to_dict())
 
-    return inner
-
-
-# 根据keyword，返回该keyword下未爬取的图片
-@catch_error
-def get_uncrawl_img_by_keyword(request):
-    if request.method == 'POST':
-        keyword = request.POST.get('keyword')
-
-        img_obj = Img.get_uncrawl_img_by_keyword(keyword)
-        img_dict = img_obj.to_dict() if img_obj else {}
-        response_data = {
-            'code': '200',
-            'msg': '响应成功!',
-            'data': img_dict
-        }
-        return JsonResponse(response_data)
-
-
-# 上传图片
-@catch_error
-def upload_img(request):
-    if request.method == 'POST':
-        img_list = json.loads(request.POST.get('img_list', '[]'))
+    @action(methods=['post'], detail=False)
+    def upload_img(self, request, *args, **kwargs):
+        '''上传图片'''
+        serializer = self.get_serializer(data=self.request.data, include_fields=['img_list'])
+        serializer.is_valid(raise_exception=True)
+        res = ''
         done = True
-        for img_dict in img_list:
-            if not cache.get(img_dict['uid']):
+        for img in serializer.data.get('img_list', []):
+            if not cache.get(img.get('uid')):
                 done = False  # 不是所有的图片都存在
-                new_img_obj = Img()
-                new_img_obj.keyword = Keyword.get_or_create(img_dict['keyword'])
-                new_img_obj.url = img_dict['url']
-                new_img_obj.thumb_url = img_dict['thumb_url']
-                new_img_obj.uid = img_dict['uid']
-                new_img_obj.status = img_dict['status']
-                new_img_obj.page = Page.objects.filter(url=img_dict['page_url']).first()
-                new_img_obj.crawl_time = datetime.datetime.fromtimestamp(img_dict['crawl_time'])
-                new_img_obj.desc = img_dict['desc']
-                new_img_obj.qualify = img_dict['qualify']
-                new_img_obj.source = img_dict['source']
-                new_img_obj.err_msg = img_dict['err_msg'][:500]
-                new_img_obj.file_type = img_dict['file_type']
-                new_img_obj.api = API.objects.filter(uid=img_dict['api']).first()
-                new_img_obj.download = img_dict['download']
-                try:
-                    new_img_obj.save()
-                except Exception as e:
-                    print(e)
-                cache.set(img_dict['uid'], img_dict['url'], 60 * 60 * 24 * 365 * 10)
+                img_serializer = self.get_serializer(data=img, exclude_fields=['img_list', 'uid_list'])
+                img_serializer.is_valid(raise_exception=True)
+                res = Img.create(**img_serializer.data)
+                cache.set(img['uid'], img['url'], 60 * 60 * 24 * 365 * 10000)
 
-        response_data = {
-            'code': '200',
-            'msg': '图片上传成功!',
-            'data': {'done': done}
-        }
-        return JsonResponse(response_data)
+        return SucResponse(data=res)
 
-
-# 检测重复的uid
-@catch_error
-def check_dup_uid(request):
-    if request.method == 'POST':
-        uid_list = json.loads(request.POST.get('uid_list', '[]'))
-        res_uid_list = []
+    @action(methods=['post'], detail=False)
+    def check_dup_uid(self, request, *args, **kwargs):
+        '''检查重复的uid'''
+        serializer = self.get_serializer(data=self.request.data, include_fields=['uid_list'])
+        serializer.is_valid(raise_exception=True)
+        uid_list = serializer.data.get('uid_list', [])
+        res = []
         for uid in uid_list:
-            exist = cache.get(uid)
-            if not exist:
-                res_uid_list.append(uid)
+            if not cache.has_key(uid):
+                res.append(uid)
             else:
-                print('存在...')
-        response_data = {
-            'code': '200',
-            'msg': '响应成功!',
-            'data': res_uid_list
-        }
-        return JsonResponse(response_data)
+                print(f'{uid}存在...')
 
+        return SucResponse(data=res)
 
-# @catch_error
-def get_undownload_img_list(request):
-    if request.method == 'POST':
-        keyword = request.POST.get('keyword')
-        img_dict_list = Img.get_undownload_img_list(keyword)
-        response_data = {
-            'code': '200',
-            'msg': '响应成功!',
-            'data': img_dict_list
-        }
-        return JsonResponse(response_data)
+    @action(methods=['post'], detail=False)
+    def get_undownload_img_list(self, request, *args, **kwargs):
+        '''未下载的图片'''
+        serializer = self.get_serializer(data=self.request.data, include_fields=['keyword'])
+        serializer.is_valid(raise_exception=True)
+        data = Img.get_undownload_img_list(keyword=serializer.data.get('keyword'))
+        return SucResponse(data=data)
 
-
-@catch_error
-def update_img(request):
-    if request.method == 'POST':
-
-        img_dict_list = json.loads(request.POST.get('img_list'))
-        for img_dict in img_dict_list:
-            img_obj = Img.objects.filter(uid=img_dict['uid']).first()
+    def update(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=self.request.data, include_fields=['img_list'])
+        serializer.is_valid(raise_exception=True)
+        for img_dict in serializer.data.get('img_list'):
+            img_obj = Img.get_by_uid(img_dict.get('uid'))
             for k in img_dict:
-                if k in ['api', 'page', 'keyword']:
-                    pass
-                elif k == 'crawl_time':
-                    img_obj.crawl_time = datetime.datetime.fromtimestamp(img_dict['crawl_time'])
-                else:
-                    setattr(img_obj, k, img_dict[k])
+                if hasattr(img_obj, k):
+                    if k == 'keyword':
+                        img_obj.keyword = Keyword.get_or_create(k)
+                    elif k == 'api':
+                        img_obj.api = API.get_by_uid(k)
+                    elif k == 'page':
+                        img_obj.page = Page.get_by_uid(k)
+                    elif isinstance(getattr(img_obj, k), type(datetime)):
+                        setattr(img_obj, k, datetime.datetime.fromtimestamp(img_dict[k]))
             img_obj.save()
 
-        response_data = {
-            'code': '200',
-            'msg': '响应成功!',
-            'data': None
-        }
-        return JsonResponse(response_data)
+        return SucResponse()

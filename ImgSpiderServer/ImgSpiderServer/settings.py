@@ -37,8 +37,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'img_server',
+    'keyword_server',
+    'api_server',
     'page_server',
+    'img_server',
+    'common'
 ]
 
 MIDDLEWARE = [
@@ -125,7 +128,7 @@ USE_TZ = False
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
 STATIC_URL = 'img-spider-server/static/'
-#STATIC_URL = 'static/'
+# STATIC_URL = 'static/'
 
 # 静态文件的目录
 STATICFILES_DIRS = [
@@ -133,7 +136,7 @@ STATICFILES_DIRS = [
 ]
 
 # 静态文件收集后的目录
-#STATIC_ROOT=os.path.join(BASE_DIR,'static')
+# STATIC_ROOT=os.path.join(BASE_DIR,'static')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
@@ -162,7 +165,7 @@ SIMPLEUI_CONFIG = {
     'system_keep': True,
 
     # 用于菜单排序和过滤, 不填此字段为默认排序和全部显示。空列表[] 为全部不显示.
-    'menu_display': ['图片管理', '页面管理', '权限认证'],
+    'menu_display': ['关键词管理', 'API管理', '图片管理', '页面管理', '权限认证'],
 
     # 设置是否开启动态菜单, 默认为False. 如果开启, 则会在每次用户登陆时刷新展示菜单内容。
     # 一般建议关闭。

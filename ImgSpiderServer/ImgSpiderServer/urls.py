@@ -17,6 +17,17 @@ from django.contrib import admin
 from django.shortcuts import render
 from django.urls import path, include
 from rest_framework.documentation import include_docs_urls
+from rest_framework.routers import DefaultRouter
+from api_server.views import ApiViewSet
+from img_server.views import ImgViewSet
+from keyword_server.views import KeywordViewSet
+from page_server.views import PageViewSet
+
+router = DefaultRouter(trailing_slash=False)
+router.register('keyword_server/', KeywordViewSet, basename='keyword_server')
+router.register('api_server/', ApiViewSet, basename='api_server')
+router.register('page_server/', PageViewSet, basename='page_server')
+router.register('img_server/', ImgViewSet, basename='img_server')
 
 admin.site.site_header = 'Img-Spider管理后台'
 admin.site.site_title = 'Img-Spider管理后台'
@@ -24,8 +35,10 @@ admin.site.index_title = 'Img-Spider管理后台'
 
 urlpatterns = [
     path('img-spider-server/admin/', admin.site.urls),
-    path('img-spider-server/img_server/', include(('img_server.urls', 'img_server'), namespace='img_server')),
-    path('img-spider-server/page_server/', include(('page_server.urls', 'page_server'), namespace='page_server')),
-    path('img-spider-server/api/docs/', include_docs_urls(title='Img-Spider api docs')),
-    path('img-spider-server/', lambda a: render(a, 'admin_index.html'), name='admin_index'),
+    path(r'img-spider-server/', include(router.urls)),
+    # path('img-spider-server/img_server/', include(('img_server.urls', 'img_server'), namespace='img_server')),
+    # path('img-spider-server/page_server/', include(('page_server.urls', 'page_server'), namespace='page_server')),
+    # path('img-spider-server/api/docs/', include_docs_urls(title='Img-Spider api docs')),
+    path('', lambda request: render(request, 'admin_index.html'), name='admin_index'),
+
 ]

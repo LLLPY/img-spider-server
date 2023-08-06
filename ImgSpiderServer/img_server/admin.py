@@ -12,22 +12,21 @@ class ImgAdmin(admin.ModelAdmin):
     search_fields = ['keyword__name', 'uid', 'page__url']
     list_filter = [
         'keyword__name',
-        'status',
-        'download',
+        'is_download',
         'source',
-        'qualify',
-        'crawl_time',
+        'is_qualify',
+        'update_time',
 
     ]
     list_display = [
         'id',
         'keyword',
-        'status',
-        'download',
-        'crawl_time',
+        'status_config',
+        'is_download',
+        'update_time',
         'file_type',
         'source',
-        'qualify',
+        'is_qualify',
         'uid',
         'desc',
         'err_msg',
