@@ -15,8 +15,11 @@ class ApiViewSet(viewsets.ModelViewSet):
         # upload_api
         serializer = self.get_serializer(data=self.request.data)
         serializer.is_valid(raise_exception=True)
-        res = API.create(**serializer.data)
-        return SucResponse(data=res)
+        if not API.get_by_uid(serializer.data.get('uid')):
+            API.create(**serializer.data)
+        else:
+            print(f'该接口对象已上传...')
+        return SucResponse()
 
     @action(methods=['post'], detail=False)
     def status(self, request, *args, **kwargs):

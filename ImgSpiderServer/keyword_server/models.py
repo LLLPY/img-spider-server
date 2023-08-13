@@ -2,6 +2,7 @@ import datetime
 
 from django.db import models
 
+
 class Keyword(models.Model):
     # 关键字
     name = models.CharField(default='', max_length=50, unique=True, db_index=True, verbose_name='关键字',
@@ -29,3 +30,6 @@ class Keyword(models.Model):
             obj = cls(name=keyword)
             obj.save()
         return obj
+
+    def to_dict(self, *args, **kwargs):
+        return {'id': self.id, 'name': self.name, 'create_time': str(self.create_time)}

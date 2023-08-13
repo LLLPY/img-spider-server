@@ -41,10 +41,14 @@ class Page(BaseModel):
         return obj
 
     @classmethod
-    def create(cls, keyword, url, uid, status, update_time, source, deep, desc, err_msg, api_uid):
-        keyword = Keyword.get_or_create(keyword)
-        update_time = datetime.datetime.fromtimestamp(update_time)
-        api = API.get_by_uid(api_uid)
-        _self = cls(keyword, keyword, url=url, uid=uid, status=status, update_time=update_time, source=source,
-                    deep=deep, desc=desc, err_msg=err_msg, api=api)
+    def create(cls, **kwargs):
+        keyword = Keyword.get_or_create(kwargs.get('keyword'))
+        api = API.get_by_uid(kwargs.get('api_uid'))
+        kwargs.update({
+            'keyword': keyword,
+            'api': api
+        })
+        _self = cls()
+        for field in cls._meta.get_fields():
+            setattr(_self, field.name, kwargs.get(field.name))
         return _self.save()

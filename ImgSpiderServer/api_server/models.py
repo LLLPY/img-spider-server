@@ -17,9 +17,9 @@ class API(BaseModel):
         return self.uid
 
     @classmethod
-    def create(cls, keyword, url, uid, source, update_time, desc, md5, err_msg):
+    def create(cls, keyword, url, uid, source, desc, md5, err_msg):
         keyword = Keyword.get_or_create(keyword)
-        update_time = datetime.datetime.fromtimestamp(update_time)
-        _self = cls(keyword=keyword, url=url, uid=uid, source=source, update_time=update_time, desc=desc, md5=md5,
+        _self = cls(keyword=keyword, url=url, uid=uid, source=source, desc=desc, md5=md5,
                     err_msg=err_msg)
         return _self.save()
+

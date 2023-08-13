@@ -32,18 +32,18 @@ class ImgViewSet(viewsets.ModelViewSet):
         '''上传图片'''
         serializer = self.get_serializer(data=self.request.data, include_fields=['img_list'])
         serializer.is_valid(raise_exception=True)
-        res = ''
         done = True
-        print(serializer.data)
         for img_dict in serializer.data.get('img_list', []):
             if not cache.get(img_dict.get('uid')):
                 done = False  # 不是所有的图片都存在
                 img_serializer = self.get_serializer(data=img_dict, exclude_fields=['img_list', 'uid_list'])
                 img_serializer.is_valid(raise_exception=True)
-                res = Img.create(**img_serializer.data)
+                Img.create(**img_serializer.data)
                 cache.set(img_dict['uid'], img_dict['url'], 60 * 60 * 24 * 365 * 10000)
-
-        return SucResponse(data=res)
+            else:
+                print('该图片对象已上传...')
+        data = {'done': done}
+        return SucResponse(data=data)
 
     @action(methods=['post'], detail=False)
     def check_dup_uid(self, request, *args, **kwargs):

@@ -85,14 +85,16 @@ class Img(BaseModel):
         return img_dict_list
 
     @classmethod
-    def create(cls, keyword, url, thumb_url, uid, page_uid, update_time, desc, source, err_msg, file_type, api_uid,
-               status_config):
-        keyword = Keyword.get_or_create(keyword)
-        print(11111, update_time, type(update_time))
-        update_time = datetime.datetime.fromtimestamp(int(float(update_time)))
-        page = Page.get_by_uid(page_uid)
-        api = API.get_by_uid(api_uid)
-        _self = cls(keyword=keyword, url=url, thumb_url=thumb_url, uid=uid, page=page, update_time=update_time,
-                    desc=desc, source=source, err_msg=err_msg, file_type=file_type, api=api,
-                    status_config=status_config)
+    def create(cls, **kwargs):
+        keyword = Keyword.get_or_create(kwargs.get('keyword'))
+        api = API.get_by_uid(kwargs.get('api_uid'))
+        page = Page.get_by_uid(kwargs.get('page_uid'))
+        kwargs.update({
+            'keyword': keyword,
+            'api': api,
+            'page': page
+        })
+        _self = cls()
+        for field in cls._meta.get_fields():
+            setattr(_self,field.name,kwargs.get(field.name))
         return _self.save()

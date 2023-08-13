@@ -1,3 +1,5 @@
+import json
+
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from api_server.models import API
@@ -10,8 +12,6 @@ class PageViewSet(viewsets.ModelViewSet):
     queryset = Page.objects.all()
     serializer_class = PageSerializers
 
-    # def get_queryset(self):
-
     def list(self, request, *args, **kwargs):
         serializer = self.get_serializer()
         data = serializer.data
@@ -19,14 +19,16 @@ class PageViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         # upload_page
-        page_list = self.request.data.get('page_list', [])
-        res = ''
+        page_list = json.loads(self.request.data.get('page_list', '[]'))
         for page in page_list:
-            serializer = self.get_serializer(data=page)
-            serializer.is_valid(raise_exception=True)
-            res = API.create(**serializer.data)
+            if not Page.get_by_uid(page.get('uid')):
+                serializer = self.get_serializer(data=page, exclude_fields=['desc', 'err_msg'])
+                serializer.is_valid(raise_exception=True)
+                Page.create(**serializer.data)
+            else:
+                print('该页面对象已上传...')
 
-        return SucResponse(data=res)
+        return SucResponse()
 
     @action(methods=['post'], detail=False)
     def get_ready_page(self, request, *args, **kwargs):
@@ -34,9 +36,10 @@ class PageViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         ready_page = Page.get_ready_page(serializer.data.get('keyword'))
         page_dict = ready_page.to_dict() if ready_page else {}
+        print(333333, page_dict)
         return SucResponse(data=page_dict)
 
-    @action(methods=['post'],detail=False)
+    @action(methods=['post'], detail=False)
     def update_page(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=self.request.data, include_fields=['page'])
         serializer.is_valid(raise_exception=True)

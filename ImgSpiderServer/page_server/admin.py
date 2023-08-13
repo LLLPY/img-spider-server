@@ -1,11 +1,8 @@
 from django.contrib import admin
 from django.db.models import Q
 from img_server.models import Img
-from page_server.models import Keyword, Page, API
+from page_server.models import Page
 from django.utils.html import format_html
-
-
-
 
 
 @admin.register(Page)
@@ -62,25 +59,29 @@ class PageAdmin(admin.ModelAdmin):
     img_count.short_description = '页面上的图片'
 
     def img_crawled_count(self, obj):
-        count = Img.objects.filter(Q(page=obj) & Q(status=Img.STATUS_CRAWLED)).count()
+        # count = Img.objects.filter(Q(page=obj) & Q(status=Img.STATUS_CRAWLED)).count()
+        count = 0
         return count
 
     img_crawled_count.short_description = '已爬取的图片'
 
     def img_uncrawl_count(self, obj):
-        count = Img.objects.filter(Q(page=obj) & Q(status=Img.STATUS_UNCRAWL)).count()
+        # count = Img.objects.filter(Q(page=obj) & Q(status=Img.STATUS_UNCRAWL)).count()
+        count = 0
         return count
 
     img_uncrawl_count.short_description = '待爬取的图片'
 
     def img_crawling_count(self, obj):
-        count = Img.objects.filter(Q(page=obj) & Q(status=Img.STATUS_CRAWLING)).count()
+        # count = Img.objects.filter(Q(page=obj) & Q(status=Img.STATUS_CRAWLING)).count()
+        count = 0
         return count
 
     img_crawling_count.short_description = '正在爬取的图片'
 
     def img_error_count(self, obj):
-        count = Img.objects.filter(Q(page=obj) & Q(status=Img.STATUS_ERROR)).count()
+        # count = Img.objects.filter(Q(page=obj) & Q(status=Img.STATUS_ERROR)).count()
+        count = 0
         return count
 
     img_error_count.short_description = '爬取错误的图片'
