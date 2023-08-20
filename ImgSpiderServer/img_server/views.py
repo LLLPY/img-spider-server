@@ -34,11 +34,16 @@ class ImgViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         done = True
         for img_dict in serializer.data.get('img_list', []):
-            if not cache.get(img_dict.get('uid')):
+            uid = img_dict.get('uid')
+            if not cache.get(uid):
                 done = False  # 不是所有的图片都存在
                 img_serializer = self.get_serializer(data=img_dict, exclude_fields=['img_list', 'uid_list'])
                 img_serializer.is_valid(raise_exception=True)
-                Img.create(**img_serializer.data)
+                try:
+                    Img.create(**img_serializer.data)
+                except Exception as e:
+                    print(f'创建失败,该图片已存在，{uid}')
+
                 cache.set(img_dict['uid'], img_dict['url'], 60 * 60 * 24 * 365 * 10000)
             else:
                 print('该图片对象已上传...')

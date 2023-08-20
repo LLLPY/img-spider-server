@@ -60,18 +60,19 @@ class BaseModel(models.Model):
 
                 obj_v = getattr(self, k)
                 # 需要再次to_dict
-                # if isinstance(obj_v, models.Model):
-                #     k_extra_map = extra_map.get(k, {})
-                #     _fields = k_extra_map.get('fields', fields)
-                #     _exclude_list = k_extra_map.get('exclude_list', exclude_list)
-                #     con[k] = obj_v.to_dict(fields=_fields, exclude_list=_exclude_list,extra_map=k_extra_map)
+                if isinstance(obj_v, models.Model):
+                    #     k_extra_map = extra_map.get(k, {})
+                    #     _fields = k_extra_map.get('fields', fields)
+                    #     _exclude_list = k_extra_map.get('exclude_list', exclude_list)
+                    #     con[k] = obj_v.to_dict(fields=_fields, exclude_list=_exclude_list,extra_map=k_extra_map)
+                    con[k] = str(obj_v)
                 # 时间
                 if isinstance(obj_v, datetime.datetime):
                     value = str(obj_v.strftime('%Y-%m-%d %H:%M:%S'))
                     con[k] = value
                 # 一般字段
                 else:
-                    con[k] = str(obj_v)
+                    con[k] = obj_v
         return con
 
     @classmethod

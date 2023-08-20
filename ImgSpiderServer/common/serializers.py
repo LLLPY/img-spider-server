@@ -15,7 +15,6 @@ class DynamicFieldsSerializer(serializers.Serializer):
         exclude_fields = kwargs.pop('exclude_fields', None)
         # Instantiate the superclass normally
         super().__init__(*args, **kwargs)
-
         # 指定的字段：如果设置了，需要检验的字段就是这些
         if include_fields is not None:
             # Drop any fields that are not specified in the `fields` argument.
@@ -28,3 +27,4 @@ class DynamicFieldsSerializer(serializers.Serializer):
         if exclude_fields is not None:
             for field_name in exclude_fields:
                 self.fields.pop(field_name)
+
