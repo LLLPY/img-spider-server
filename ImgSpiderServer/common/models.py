@@ -67,7 +67,7 @@ class BaseModel(models.Model):
                     #     con[k] = obj_v.to_dict(fields=_fields, exclude_list=_exclude_list,extra_map=k_extra_map)
                     con[k] = str(obj_v)
                 # 时间
-                if isinstance(obj_v, datetime.datetime):
+                elif isinstance(obj_v, datetime.datetime):
                     value = str(obj_v.strftime('%Y-%m-%d %H:%M:%S'))
                     con[k] = value
                 # 一般字段

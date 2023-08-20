@@ -1,3 +1,9 @@
-from django.test import TestCase
 
-# Create your tests here.
+class A:
+    pass
+
+class B(A):
+    pass
+
+b = B()
+print(isinstance(b,A))
